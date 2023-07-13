@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const pluginName = "github.com/monebag/monorepo-diff"
+const pluginName = "github.com/redpanda-data/monorepo-diff"
 
 // Plugin buildkite monorepo diff plugin structure
 type Plugin struct {
@@ -22,6 +22,7 @@ type Plugin struct {
 	Env           map[string]string
 	RawNotify     []map[string]interface{} `json:"notify" yaml:",omitempty"`
 	Notify        []PluginNotify           `yaml:"notify,omitempty"`
+	Group         string                   `yaml:"group,omitempty"`
 }
 
 // HookConfig Plugin hook configuration

@@ -88,7 +88,6 @@ func diff(command string) ([]string, error) {
 		env("SHELL", "bash"),
 		[]string{"-c", strings.Replace(command, "\n", " ", -1)},
 	)
-
 	if err != nil {
 		return nil, fmt.Errorf("diff command failed: %v", err)
 	}
@@ -181,8 +180,14 @@ func generatePipeline(steps []Step, plugin Plugin) (*os.File, error) {
 		yamlNotify[i] = n
 	}
 
-	pipeline := map[string][]yaml.Marshaler{
+	pipeline := map[string]any{
 		"steps": yamlSteps,
+	}
+	if plugin.Group != "" {
+		pipeline["group"] = plugin.Group
+		pipeline = map[string]any{
+			"steps": []any{pipeline},
+		}
 	}
 
 	if len(yamlNotify) > 0 {
