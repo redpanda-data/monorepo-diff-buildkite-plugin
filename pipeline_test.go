@@ -222,6 +222,19 @@ func TestPipelinesStepsToTrigger(t *testing.T) {
 				{Trigger: "txt"},
 			},
 		},
+		"recursive glob with ignore": {
+			ChangedFiles: []string{
+				"package/other.txt",
+			},
+			WatchConfigs: []WatchConfig{
+				{
+					Paths:       []string{"**/*"},
+					IgnorePaths: []string{"package/*"},
+					Step:        Step{Trigger: "txt"},
+				},
+			},
+			Expected: []Step{},
+		},
 	}
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
