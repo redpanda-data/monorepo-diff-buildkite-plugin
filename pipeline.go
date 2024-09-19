@@ -99,21 +99,52 @@ func stepsToTrigger(files []string, watch []WatchConfig) ([]Step, error) {
 	steps := []Step{}
 
 	for _, w := range watch {
-		for _, p := range w.Paths {
-			for _, f := range files {
-				match, err := matchPath(p, f)
-				if err != nil {
-					return nil, err
-				}
-				if match {
-					steps = append(steps, w.Step)
-					break
-				}
+		for _, f := range files {
+			isIgnored, err := matchesIgnorePath(f, w)
+			if err != nil {
+				return nil, err
+			}
+			if isIgnored {
+				continue
+			}
+			isMatched, err := matchesPath(f, w)
+			if err != nil {
+				return nil, err
+			}
+			if isMatched {
+				steps = append(steps, w.Step)
+				break
 			}
 		}
 	}
 
 	return dedupSteps(steps), nil
+}
+
+func matchesPath(f string, w WatchConfig) (bool, error) {
+	for _, p := range w.Paths {
+		match, err := matchPath(p, f)
+		if err != nil {
+			return false, err
+		}
+		if match {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func matchesIgnorePath(f string, w WatchConfig) (bool, error) {
+	for _, p := range w.IgnorePaths {
+		match, err := matchPath(p, f)
+		if err != nil {
+			return false, err
+		}
+		if match {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 // matchPath checks if the file f matches the path p.
