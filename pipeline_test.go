@@ -17,7 +17,7 @@ func mockGeneratePipeline(steps []Step, plugin Plugin) (*os.File, error) {
 }
 
 func TestUploadPipelineCallsBuildkiteAgentCommand(t *testing.T) {
-	plugin := Plugin{Diff: "echo ./foo-service", Interpolation: true}
+	plugin := Plugin{Diff: "echo 123", Interpolation: true, Watch: []WatchConfig{{Paths: []string{"123"}, Step: Step{}}}}
 	cmd, args, err := uploadPipeline(plugin, mockGeneratePipeline)
 
 	assert.Equal(t, "buildkite-agent", cmd)
@@ -26,7 +26,7 @@ func TestUploadPipelineCallsBuildkiteAgentCommand(t *testing.T) {
 }
 
 func TestUploadPipelineCallsBuildkiteAgentCommandWithInterpolation(t *testing.T) {
-	plugin := Plugin{Diff: "echo ./foo-service", Interpolation: false}
+	plugin := Plugin{Diff: "echo 123", Interpolation: false, Watch: []WatchConfig{{Paths: []string{"123"}, Step: Step{}}}}
 	cmd, args, err := uploadPipeline(plugin, mockGeneratePipeline)
 
 	assert.Equal(t, "buildkite-agent", cmd)
@@ -36,6 +36,15 @@ func TestUploadPipelineCallsBuildkiteAgentCommandWithInterpolation(t *testing.T)
 
 func TestUploadPipelineCancelsIfThereIsNoDiffOutput(t *testing.T) {
 	plugin := Plugin{Diff: "echo"}
+	cmd, args, err := uploadPipeline(plugin, mockGeneratePipeline)
+
+	assert.Equal(t, "", cmd)
+	assert.Equal(t, []string{}, args)
+	assert.Equal(t, err, nil)
+}
+
+func TestUploadPipelineCancelsIfThereIsNoSteps(t *testing.T) {
+	plugin := Plugin{Diff: "echo 123"}
 	cmd, args, err := uploadPipeline(plugin, mockGeneratePipeline)
 
 	assert.Equal(t, "", cmd)

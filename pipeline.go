@@ -61,6 +61,11 @@ func uploadPipeline(plugin Plugin, generatePipeline PipelineGenerator) (string, 
 		return "", []string{}, err
 	}
 
+	if len(steps) < 1 {
+		log.Info("No steps to trigger. Skipping pipeline upload.")
+		return "", []string{}, nil
+	}
+
 	pipeline, err := generatePipeline(steps, plugin)
 	defer os.Remove(pipeline.Name())
 
